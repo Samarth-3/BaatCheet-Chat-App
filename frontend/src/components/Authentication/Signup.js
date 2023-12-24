@@ -3,7 +3,9 @@ import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
 import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
+import axios from "axios";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -13,12 +15,120 @@ const Signup = () => {
   const [password, setPassword] = useState();
   const [pic, setPic] = useState();
   const [picLoading, setPicLoading] = useState(false);
+  const toast = useToast();
+  const navigate=useNavigate();
 
   const handleClick = () => {
     setShow(!show);
   };
-  const postDetails = (pics) => {};
-  const submitHandler = () => {};
+
+
+  const postDetails = (pics) => {
+    setPicLoading(true)
+    if (pics === undefined) {
+      toast({
+        title: "Please Select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+    if(pics.type==="image/jpeg" || pics.type==="image/png"){
+      const data = new FormData();
+      data.append("file", pics);
+      data.append("upload_preset", "BaatCheet");
+      data.append("cloud_name", "dwgpyjbrs");
+      fetch("https://api.cloudinary.com/v1_1/dwgpyjbrs/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setPic(data.url.toString());
+          console.log(data);
+          setPicLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setPicLoading(false);
+        });
+    }
+    else{
+      toast({
+        title: "Error",
+        description: "Please Upload an Image",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
+      setPicLoading(false);
+    }
+  }
+
+
+
+  const submitHandler = async() => {
+    setPicLoading(true);
+    if (name === undefined || email === undefined || password === undefined || confirmpassword === undefined) {
+      toast({
+        title: "Error",
+        description: "Please fill all the fields",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
+      setPicLoading(false);
+      return;
+    }
+    if (password !== confirmpassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right"
+      });
+      setPicLoading(false);
+      return;
+    }
+    try{
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      };
+      const {data}=await axios.post("/api/user/",{name,email,password,pic},config);
+      toast({
+        title: "Registration successful",
+        description: data.message,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right"
+      });
+      localStorage.setItem("userInfo",JSON.stringify(data));
+      setPicLoading(false);
+      navigate("/chats");
+    }
+    catch(err){
+      toast({
+        title: "Error",
+        description: err.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right"
+      });
+      setPicLoading(false);
+    }
+  };
+
+
   return (
     <VStack spacing="5px">
       <FormControl id="first-name" isRequired>
