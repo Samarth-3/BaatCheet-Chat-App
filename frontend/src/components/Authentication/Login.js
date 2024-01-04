@@ -3,7 +3,7 @@ import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 
@@ -13,7 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
   const toast = useToast();
-  const navigate = useNavigate();
+  const navigate = useHistory();
 
   const handleClick = () => setShow(!show);
 
@@ -53,7 +53,7 @@ const Login = () => {
       });
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate("/chats");
+      navigate.push("/chats");
     } catch (error) {
       toast({
         title: "Error Occured!",
