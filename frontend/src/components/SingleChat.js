@@ -39,7 +39,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
      },
    };
 
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const { user, selectedChat, setSelectedChat, notification, setNotification } = ChatState();
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -128,10 +128,10 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
         !selectedChatCompare || // if chat is not selected or doesn't match current chat
         selectedChatCompare._id !== newMessageRecieved.chat._id
       ) {
-        // if (!notification.includes(newMessageRecieved)) {
-        //   setNotification([newMessageRecieved, ...notification]);
-        //   setFetchAgain(!fetchAgain);
-        // }
+        if (!notification.includes(newMessageRecieved)) {
+          setNotification([newMessageRecieved, ...notification]); //naya notification list mae aa jaega
+          setFetchAgain(!fetchAgain); //update the list of chat with new notification
+        }
       } else {
         setMessages([...messages, newMessageRecieved]);
       }
